@@ -41,9 +41,18 @@ class Race {
             VALUES (?, ?, 'pending')
         `).run(trackId, totalLaps);
 
-        // Obtener el último ID insertado
-        const lastId = db.prepare('SELECT last_insert_rowid() as id').get();
-        return this.getById(lastId.id);
+        // Obtener la carrera recién creada directamente
+        const race = db.prepare(`
+            SELECT r.*, t.name as track_name, t.country as track_country,
+                   t.length_km, t.corners, t.drs_zones
+            FROM races r
+            JOIN tracks t ON r.track_id = t.id
+            ORDER BY r.id DESC
+            LIMIT 1
+        `).get();
+
+        console.log('Race created:', race);
+        return race;
     }
 
     static async updateStatus(id, status) {

@@ -58,10 +58,14 @@ class RaceEngine extends EventEmitter {
     }
 
     async start(trackId) {
+        console.log('Starting race with trackId:', trackId);
+
         // Obtener pista
         const track = trackId ? await Track.getById(trackId) : await Track.getRandom();
+        console.log('Track found:', track);
+
         if (!track) {
-            console.error('No track found');
+            console.error('No track found! Make sure to run: npm run db:init && npm run db:seed');
             return;
         }
 
@@ -74,6 +78,13 @@ class RaceEngine extends EventEmitter {
 
         // Crear carrera en DB
         const race = await Race.create(track.id, this.state.totalLaps);
+        console.log('Race object:', race);
+
+        if (!race) {
+            console.error('Failed to create race! Database may not be initialized.');
+            return;
+        }
+
         this.state.raceId = race.id;
         await Race.updateStatus(race.id, 'running');
 
