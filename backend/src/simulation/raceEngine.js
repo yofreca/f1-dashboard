@@ -44,6 +44,7 @@ class RaceEngine extends EventEmitter {
             gapToAhead: 0,
             lastLapTime: null,
             bestLapTime: null,
+            lapTimes: [], // Historial de tiempos por vuelta
             status: 'racing', // racing, pit, out, finished
             // Características aleatorias del piloto
             skill: 0.8 + Math.random() * 0.2,
@@ -213,9 +214,22 @@ class RaceEngine extends EventEmitter {
         driver.trackPosition -= 100;
         driver.lap++;
 
-        // Calcular tiempo de vuelta
-        const lapTime = 60 + Math.random() * 30 + (driver.tireWear / 10);
+        // Calcular tiempo de vuelta basado en condiciones
+        const baseTime = 80 + Math.random() * 15; // Tiempo base entre 80-95 segundos
+        const tireEffect = driver.tireWear / 20; // Penalización por desgaste
+        const skillEffect = (1 - driver.skill) * 5; // Mejor habilidad = menos tiempo
+        const weatherEffect = this.state.weather === 'wet' ? 10 : this.state.weather === 'mixed' ? 5 : 0;
+
+        const lapTime = baseTime + tireEffect + skillEffect + weatherEffect;
         driver.lastLapTime = lapTime;
+
+        // Guardar en historial de tiempos
+        driver.lapTimes.push({
+            lap: driver.lap,
+            time: lapTime,
+            compound: driver.tireCompound,
+            weather: this.state.weather
+        });
 
         if (!driver.bestLapTime || lapTime < driver.bestLapTime) {
             driver.bestLapTime = lapTime;
@@ -229,6 +243,7 @@ class RaceEngine extends EventEmitter {
         this.emit('lap_completed', {
             driverId: driver.id,
             driverName: driver.name,
+            teamColor: driver.team_color,
             lap: driver.lap,
             lapTime: driver.lastLapTime,
             bestLapTime: driver.bestLapTime
@@ -248,6 +263,7 @@ class RaceEngine extends EventEmitter {
         this.emit('pit_stop', {
             driverId: driver.id,
             driverName: driver.name,
+            teamColor: driver.team_color,
             pitStops: driver.pitStops
         });
 
@@ -297,6 +313,7 @@ class RaceEngine extends EventEmitter {
                 this.emit('overtake', {
                     driverId: driver.id,
                     driverName: driver.name,
+                    teamColor: driver.team_color,
                     newPosition: driver.position,
                     oldPosition: oldPosition
                 });
@@ -421,7 +438,8 @@ class RaceEngine extends EventEmitter {
                 tireCompound: d.tireCompound,
                 tireWear: Math.round(d.tireWear),
                 pitStops: d.pitStops,
-                status: d.status
+                status: d.status,
+                lapTimes: d.lapTimes || []
             })),
             speed: this.speed
         };
