@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #15151E 0%, #1a1a2e 100%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #15151E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #38383F;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E10600;
+}
+
+/* Animations */
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(225, 6, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(225, 6, 0, 0);
+  }
+}
+
+.pulse-red {
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Tire compound colors */
+.tire-soft { background-color: #FF3333; }
+.tire-medium { background-color: #FFD700; }
+.tire-hard { background-color: #FFFFFF; }
+.tire-intermediate { background-color: #43B02A; }
+.tire-wet { background-color: #0067AD; }
