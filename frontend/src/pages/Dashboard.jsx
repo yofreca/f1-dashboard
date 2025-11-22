@@ -4,6 +4,7 @@ import DriversPanel from '../components/drivers/DriversPanel'
 import StatsPanel from '../components/stats/StatsPanel'
 import RaceControls from '../components/controls/RaceControls'
 import TelemetryHUD from '../components/telemetry/TelemetryHUD'
+import LapTimesPanel from '../components/laptimes/LapTimesPanel'
 import { api } from '../services/api'
 
 export default function Dashboard({ socket, raceState, connected }) {
@@ -82,6 +83,13 @@ export default function Dashboard({ socket, raceState, connected }) {
             raceState={raceState}
           />
         )}
+
+        {/* Lap Times Panel */}
+        <LapTimesPanel
+          raceState={raceState}
+          selectedDriver={selectedDriver}
+          onDriverSelect={handleDriverSelect}
+        />
       </div>
 
       {/* Right Panel - Drivers & Stats */}
