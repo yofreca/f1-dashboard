@@ -364,6 +364,11 @@ class RaceEngine extends EventEmitter {
             clearInterval(this.interval);
             this.interval = null;
         }
+        // Reset state to allow restart
+        this.state.status = 'idle';
+        this.state.raceId = null;
+        this.drivers = [];
+        console.log('Race stopped, ready for new race');
     }
 
     reset() {
@@ -379,6 +384,7 @@ class RaceEngine extends EventEmitter {
             elapsedTime: 0
         };
         this.drivers = [];
+        console.log('Race reset complete');
     }
 
     setSpeed(speed) {

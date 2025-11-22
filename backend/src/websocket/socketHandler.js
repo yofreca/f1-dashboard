@@ -6,21 +6,21 @@ export function setupSocketHandlers(io, raceEngine) {
         socket.emit('race:state', raceEngine.getState());
 
         // Control de carrera
-        socket.on('race:start', (data) => {
+        socket.on('race:start', async (data) => {
             console.log('Starting race...', data);
-            raceEngine.start(data?.trackId);
+            await raceEngine.start(data?.trackId);
             io.emit('race:started', raceEngine.getState());
         });
 
-        socket.on('race:pause', () => {
+        socket.on('race:pause', async () => {
             console.log('Pausing race...');
-            raceEngine.pause();
+            await raceEngine.pause();
             io.emit('race:paused', raceEngine.getState());
         });
 
-        socket.on('race:resume', () => {
+        socket.on('race:resume', async () => {
             console.log('Resuming race...');
-            raceEngine.resume();
+            await raceEngine.resume();
             io.emit('race:resumed', raceEngine.getState());
         });
 
@@ -40,13 +40,15 @@ export function setupSocketHandlers(io, raceEngine) {
         socket.on('race:speed', (speed) => {
             console.log(`Setting simulation speed: ${speed}x`);
             raceEngine.setSpeed(speed);
+            io.emit('race:update', raceEngine.getState());
         });
 
         // Control de clima
-        socket.on('race:weather', (weather) => {
+        socket.on('race:weather', async (weather) => {
             console.log(`Changing weather to: ${weather}`);
-            raceEngine.setWeather(weather);
+            await raceEngine.setWeather(weather);
             io.emit('race:weather_changed', { weather });
+            io.emit('race:update', raceEngine.getState());
         });
 
         // Seleccionar piloto para telemetría detallada
