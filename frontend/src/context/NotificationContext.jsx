@@ -58,13 +58,13 @@ export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
   const [settings, setSettings] = useState({
     enabled: true,
-    showOvertakes: true,
+    showOvertakes: false, // Desactivado por defecto (muy frecuente)
     showPitStops: true,
     showFastestLap: true,
     showWeather: true,
     showLapCompleted: false, // Por defecto desactivado (muy frecuente)
-    maxNotifications: 5,
-    duration: 4000 // ms
+    maxNotifications: 3, // Reducido para no ocultar paneles
+    duration: 3000 // ms - más corto
   })
 
   const addNotification = useCallback((type, data) => {

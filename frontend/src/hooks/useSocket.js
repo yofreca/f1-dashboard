@@ -81,24 +81,21 @@ export function useSocket(onNotification) {
     })
 
     newSocket.on('race:lap_completed', (data) => {
-      // Verificar si es nueva vuelta más rápida
+      // Verificar si es nueva vuelta más rápida (con mejora significativa > 0.5s)
       const lapTime = parseFloat(data.lapTime)
-      if (!fastestLapRef.current || lapTime < fastestLapRef.current) {
+      if (!fastestLapRef.current || lapTime < fastestLapRef.current - 0.5) {
         fastestLapRef.current = lapTime
         onNotification?.('fastest_lap', {
           driverName: data.driverName,
+          teamColor: data.teamColor,
           lapTime: formatLapTime(lapTime),
           lap: data.lap
         })
+      } else if (lapTime < fastestLapRef.current) {
+        // Actualizar referencia sin notificar si la mejora es pequeña
+        fastestLapRef.current = lapTime
       }
-      // Notificación de vuelta completada (solo para líderes o intervalos)
-      if (data.lap % 5 === 0) { // Cada 5 vueltas
-        onNotification?.('lap_completed', {
-          driverName: data.driverName,
-          lap: data.lap,
-          lapTime: formatLapTime(data.lapTime)
-        })
-      }
+      // Notificación de vuelta completada desactivada por defecto
     })
 
     newSocket.on('race:weather_changed', (data) => {

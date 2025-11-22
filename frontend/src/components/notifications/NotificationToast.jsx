@@ -98,7 +98,7 @@ export default function NotificationToast() {
   }
 
   return (
-    <div className="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col-reverse gap-2 max-w-xs">
       {notifications.map((notification, index) => (
         <div
           key={notification.id}
@@ -111,39 +111,34 @@ export default function NotificationToast() {
           `}
           style={{
             animationDelay: `${index * 50}ms`,
-            opacity: 1 - (index * 0.15)
+            opacity: 1 - (index * 0.2)
           }}
         >
-          <div className="px-4 py-3">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{notification.config.icon}</span>
-                <span className="text-xs font-bold text-white/80 tracking-wider">
+          <div className="px-3 py-2">
+            {/* Header compacto */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">{notification.config.icon}</span>
+                <span className="text-[10px] font-bold text-white/70 tracking-wider">
                   {notification.config.title}
                 </span>
               </div>
               <button
                 onClick={() => removeNotification(notification.id)}
-                className="text-white/50 hover:text-white text-sm"
+                className="text-white/40 hover:text-white text-xs ml-2"
               >
                 ✕
               </button>
             </div>
 
             {/* Message */}
-            <div className="text-sm">
+            <div className="text-xs mt-1">
               {formatMessage(notification.type, notification.data)}
-            </div>
-
-            {/* Timestamp */}
-            <div className="text-xs text-white/40 mt-1">
-              {notification.timestamp.toLocaleTimeString()}
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="h-1 bg-black/20">
+          {/* Progress bar más delgada */}
+          <div className="h-0.5 bg-black/20">
             <div
               className="h-full bg-white/30 animate-shrink"
               style={{ animationDuration: `${settings.duration}ms` }}
