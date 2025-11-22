@@ -1,12 +1,13 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { io } from 'socket.io-client'
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
 
-export function useSocket() {
+export function useSocket(onNotification) {
   const [socket, setSocket] = useState(null)
   const [connected, setConnected] = useState(false)
   const [raceState, setRaceState] = useState(null)
+  const fastestLapRef = useRef(null)
 
   useEffect(() => {
     const newSocket = io(SOCKET_URL, {
@@ -36,6 +37,13 @@ export function useSocket() {
 
     newSocket.on('race:started', (state) => {
       setRaceState(state)
+      // Notificar inicio de carrera
+      onNotification?.('race_start', {
+        trackName: state.track?.name,
+        totalLaps: state.totalLaps
+      })
+      // Reset fastest lap tracker
+      fastestLapRef.current = null
     })
 
     newSocket.on('race:paused', (state) => {
@@ -52,10 +60,49 @@ export function useSocket() {
 
     newSocket.on('race:reset', (state) => {
       setRaceState(state)
+      fastestLapRef.current = null
     })
 
     newSocket.on('race:finished', (data) => {
       console.log('Race finished:', data)
+      const winner = data.results?.[0]
+      onNotification?.('race_finished', {
+        winner: winner?.driverName || 'Unknown'
+      })
+    })
+
+    // Eventos específicos para notificaciones
+    newSocket.on('race:overtake', (data) => {
+      onNotification?.('overtake', data)
+    })
+
+    newSocket.on('race:pit_stop', (data) => {
+      onNotification?.('pit_stop', data)
+    })
+
+    newSocket.on('race:lap_completed', (data) => {
+      // Verificar si es nueva vuelta más rápida
+      const lapTime = parseFloat(data.lapTime)
+      if (!fastestLapRef.current || lapTime < fastestLapRef.current) {
+        fastestLapRef.current = lapTime
+        onNotification?.('fastest_lap', {
+          driverName: data.driverName,
+          lapTime: formatLapTime(lapTime),
+          lap: data.lap
+        })
+      }
+      // Notificación de vuelta completada (solo para líderes o intervalos)
+      if (data.lap % 5 === 0) { // Cada 5 vueltas
+        onNotification?.('lap_completed', {
+          driverName: data.driverName,
+          lap: data.lap,
+          lapTime: formatLapTime(data.lapTime)
+        })
+      }
+    })
+
+    newSocket.on('race:weather_changed', (data) => {
+      onNotification?.('weather_change', data)
     })
 
     setSocket(newSocket)
@@ -63,7 +110,15 @@ export function useSocket() {
     return () => {
       newSocket.close()
     }
-  }, [])
+  }, [onNotification])
+
+  // Formatear tiempo de vuelta
+  function formatLapTime(seconds) {
+    if (!seconds) return '-'
+    const mins = Math.floor(seconds / 60)
+    const secs = (seconds % 60).toFixed(3)
+    return `${mins}:${secs.padStart(6, '0')}`
+  }
 
   const startRace = useCallback((trackId) => {
     if (socket) {

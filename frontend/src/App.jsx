@@ -1,9 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSocket } from './hooks/useSocket'
+import { NotificationProvider, useNotifications } from './context/NotificationContext'
+import NotificationToast from './components/notifications/NotificationToast'
+import NotificationSettings from './components/notifications/NotificationSettings'
 import Dashboard from './pages/Dashboard'
 
-function App() {
-  const { socket, connected, raceState } = useSocket()
+function AppContent() {
+  const { addNotification } = useNotifications()
+  const handleNotification = useCallback((type, data) => {
+    addNotification(type, data)
+  }, [addNotification])
+
+  const { socket, connected, raceState } = useSocket(handleNotification)
   const [error, setError] = useState(null)
 
   if (error) {
@@ -30,6 +38,7 @@ function App() {
             )}
           </div>
           <div className="flex items-center gap-4">
+            <NotificationSettings />
             <div className={`flex items-center gap-2 ${connected ? 'text-green-500' : 'text-red-500'}`}>
               <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 pulse-red' : 'bg-red-500'}`}></div>
               <span className="text-sm">{connected ? 'Live' : 'Disconnected'}</span>
@@ -48,11 +57,22 @@ function App() {
         </div>
       </header>
 
+      {/* Notification Toast Container */}
+      <NotificationToast />
+
       {/* Main Content */}
       <main>
         <Dashboard socket={socket} raceState={raceState} connected={connected} />
       </main>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <NotificationProvider>
+      <AppContent />
+    </NotificationProvider>
   )
 }
 

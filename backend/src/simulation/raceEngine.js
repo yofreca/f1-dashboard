@@ -243,6 +243,7 @@ class RaceEngine extends EventEmitter {
         this.emit('lap_completed', {
             driverId: driver.id,
             driverName: driver.name,
+            teamColor: driver.team_color,
             lap: driver.lap,
             lapTime: driver.lastLapTime,
             bestLapTime: driver.bestLapTime
@@ -262,6 +263,7 @@ class RaceEngine extends EventEmitter {
         this.emit('pit_stop', {
             driverId: driver.id,
             driverName: driver.name,
+            teamColor: driver.team_color,
             pitStops: driver.pitStops
         });
 
@@ -311,6 +313,7 @@ class RaceEngine extends EventEmitter {
                 this.emit('overtake', {
                     driverId: driver.id,
                     driverName: driver.name,
+                    teamColor: driver.team_color,
                     newPosition: driver.position,
                     oldPosition: oldPosition
                 });
