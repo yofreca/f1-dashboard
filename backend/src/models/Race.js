@@ -36,12 +36,14 @@ class Race {
 
     static async create(trackId, totalLaps) {
         const db = await getDb();
-        const stmt = db.prepare(`
+        db.prepare(`
             INSERT INTO races (track_id, total_laps, status)
             VALUES (?, ?, 'pending')
-        `);
-        const result = stmt.run(trackId, totalLaps);
-        return this.getById(result.lastInsertRowid);
+        `).run(trackId, totalLaps);
+
+        // Obtener el último ID insertado
+        const lastId = db.prepare('SELECT last_insert_rowid() as id').get();
+        return this.getById(lastId.id);
     }
 
     static async updateStatus(id, status) {
