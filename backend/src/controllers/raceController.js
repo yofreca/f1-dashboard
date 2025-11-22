@@ -1,6 +1,6 @@
 import Race from '../models/Race.js';
 
-export const getRaceState = (req, res) => {
+export const getRaceState = async (req, res) => {
     try {
         const raceEngine = req.app.get('raceEngine');
         res.json(raceEngine.getState());
@@ -9,18 +9,18 @@ export const getRaceState = (req, res) => {
     }
 };
 
-export const startRace = (req, res) => {
+export const startRace = async (req, res) => {
     try {
         const { trackId } = req.body;
         const raceEngine = req.app.get('raceEngine');
-        raceEngine.start(trackId);
+        await raceEngine.start(trackId);
         res.json({ message: 'Race started', state: raceEngine.getState() });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-export const pauseRace = (req, res) => {
+export const pauseRace = async (req, res) => {
     try {
         const raceEngine = req.app.get('raceEngine');
         raceEngine.pause();
@@ -30,7 +30,7 @@ export const pauseRace = (req, res) => {
     }
 };
 
-export const resumeRace = (req, res) => {
+export const resumeRace = async (req, res) => {
     try {
         const raceEngine = req.app.get('raceEngine');
         raceEngine.resume();
@@ -40,7 +40,7 @@ export const resumeRace = (req, res) => {
     }
 };
 
-export const stopRace = (req, res) => {
+export const stopRace = async (req, res) => {
     try {
         const raceEngine = req.app.get('raceEngine');
         raceEngine.stop();
@@ -50,7 +50,7 @@ export const stopRace = (req, res) => {
     }
 };
 
-export const resetRace = (req, res) => {
+export const resetRace = async (req, res) => {
     try {
         const raceEngine = req.app.get('raceEngine');
         raceEngine.reset();
@@ -60,7 +60,7 @@ export const resetRace = (req, res) => {
     }
 };
 
-export const setWeather = (req, res) => {
+export const setWeather = async (req, res) => {
     try {
         const { weather } = req.body;
         const raceEngine = req.app.get('raceEngine');
@@ -71,7 +71,7 @@ export const setWeather = (req, res) => {
     }
 };
 
-export const setSpeed = (req, res) => {
+export const setSpeed = async (req, res) => {
     try {
         const { speed } = req.body;
         const raceEngine = req.app.get('raceEngine');
@@ -82,9 +82,9 @@ export const setSpeed = (req, res) => {
     }
 };
 
-export const getRaceHistory = (req, res) => {
+export const getRaceHistory = async (req, res) => {
     try {
-        const races = Race.getAll();
+        const races = await Race.getAll();
         res.json(races);
     } catch (error) {
         res.status(500).json({ error: error.message });

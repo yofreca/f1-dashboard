@@ -1,7 +1,8 @@
-import db from '../database/db.js';
+import { getDb } from '../database/db.js';
 
 class Race {
-    static getAll() {
+    static async getAll() {
+        const db = await getDb();
         return db.prepare(`
             SELECT r.*, t.name as track_name, t.country as track_country
             FROM races r
@@ -10,7 +11,8 @@ class Race {
         `).all();
     }
 
-    static getById(id) {
+    static async getById(id) {
+        const db = await getDb();
         return db.prepare(`
             SELECT r.*, t.name as track_name, t.country as track_country,
                    t.length_km, t.corners, t.drs_zones
@@ -20,7 +22,8 @@ class Race {
         `).get(id);
     }
 
-    static getActive() {
+    static async getActive() {
+        const db = await getDb();
         return db.prepare(`
             SELECT r.*, t.name as track_name, t.country as track_country
             FROM races r
@@ -31,7 +34,8 @@ class Race {
         `).get();
     }
 
-    static create(trackId, totalLaps) {
+    static async create(trackId, totalLaps) {
+        const db = await getDb();
         const stmt = db.prepare(`
             INSERT INTO races (track_id, total_laps, status)
             VALUES (?, ?, 'pending')
@@ -40,8 +44,8 @@ class Race {
         return this.getById(result.lastInsertRowid);
     }
 
-    static updateStatus(id, status) {
-        const updates = { status };
+    static async updateStatus(id, status) {
+        const db = await getDb();
         if (status === 'running') {
             db.prepare('UPDATE races SET status = ?, started_at = CURRENT_TIMESTAMP WHERE id = ?')
                 .run(status, id);
@@ -54,17 +58,20 @@ class Race {
         return this.getById(id);
     }
 
-    static updateLap(id, lap) {
+    static async updateLap(id, lap) {
+        const db = await getDb();
         db.prepare('UPDATE races SET current_lap = ? WHERE id = ?').run(lap, id);
         return this.getById(id);
     }
 
-    static updateWeather(id, weather) {
+    static async updateWeather(id, weather) {
+        const db = await getDb();
         db.prepare('UPDATE races SET weather = ? WHERE id = ?').run(weather, id);
         return this.getById(id);
     }
 
-    static getPositions(raceId) {
+    static async getPositions(raceId) {
+        const db = await getDb();
         return db.prepare(`
             SELECT rp.*, d.name as driver_name, d.abbreviation, d.number,
                    t.name as team_name, t.color as team_color
@@ -76,7 +83,8 @@ class Race {
         `).all(raceId);
     }
 
-    static setPosition(raceId, driverId, positionData) {
+    static async setPosition(raceId, driverId, positionData) {
+        const db = await getDb();
         const existing = db.prepare(
             'SELECT id FROM race_positions WHERE race_id = ? AND driver_id = ?'
         ).get(raceId, driverId);

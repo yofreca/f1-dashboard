@@ -1,7 +1,8 @@
-import db from '../database/db.js';
+import { getDb } from '../database/db.js';
 
 class Driver {
-    static getAll() {
+    static async getAll() {
+        const db = await getDb();
         return db.prepare(`
             SELECT d.*, t.name as team_name, t.color as team_color
             FROM drivers d
@@ -10,7 +11,8 @@ class Driver {
         `).all();
     }
 
-    static getById(id) {
+    static async getById(id) {
+        const db = await getDb();
         return db.prepare(`
             SELECT d.*, t.name as team_name, t.color as team_color
             FROM drivers d
@@ -19,7 +21,8 @@ class Driver {
         `).get(id);
     }
 
-    static getByAbbreviation(abbr) {
+    static async getByAbbreviation(abbr) {
+        const db = await getDb();
         return db.prepare(`
             SELECT d.*, t.name as team_name, t.color as team_color
             FROM drivers d
@@ -28,7 +31,8 @@ class Driver {
         `).get(abbr);
     }
 
-    static getByTeam(teamId) {
+    static async getByTeam(teamId) {
+        const db = await getDb();
         return db.prepare(`
             SELECT d.*, t.name as team_name, t.color as team_color
             FROM drivers d
@@ -37,7 +41,8 @@ class Driver {
         `).all(teamId);
     }
 
-    static create(data) {
+    static async create(data) {
+        const db = await getDb();
         const stmt = db.prepare(`
             INSERT INTO drivers (name, abbreviation, number, team_id, country, photo_url)
             VALUES (@name, @abbreviation, @number, @team_id, @country, @photo_url)

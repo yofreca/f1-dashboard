@@ -1,23 +1,28 @@
-import db from '../database/db.js';
+import { getDb } from '../database/db.js';
 
 class Track {
-    static getAll() {
+    static async getAll() {
+        const db = await getDb();
         return db.prepare('SELECT * FROM tracks ORDER BY name').all();
     }
 
-    static getById(id) {
+    static async getById(id) {
+        const db = await getDb();
         return db.prepare('SELECT * FROM tracks WHERE id = ?').get(id);
     }
 
-    static getByCountry(country) {
+    static async getByCountry(country) {
+        const db = await getDb();
         return db.prepare('SELECT * FROM tracks WHERE country = ?').all(country);
     }
 
-    static getRandom() {
+    static async getRandom() {
+        const db = await getDb();
         return db.prepare('SELECT * FROM tracks ORDER BY RANDOM() LIMIT 1').get();
     }
 
-    static create(data) {
+    static async create(data) {
+        const db = await getDb();
         const stmt = db.prepare(`
             INSERT INTO tracks (name, country, city, length_km, laps, corners, drs_zones, svg_path)
             VALUES (@name, @country, @city, @length_km, @laps, @corners, @drs_zones, @svg_path)

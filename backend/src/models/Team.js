@@ -1,27 +1,32 @@
-import db from '../database/db.js';
+import { getDb } from '../database/db.js';
 
 class Team {
-    static getAll() {
+    static async getAll() {
+        const db = await getDb();
         return db.prepare('SELECT * FROM teams ORDER BY name').all();
     }
 
-    static getById(id) {
+    static async getById(id) {
+        const db = await getDb();
         return db.prepare('SELECT * FROM teams WHERE id = ?').get(id);
     }
 
-    static getByName(name) {
+    static async getByName(name) {
+        const db = await getDb();
         return db.prepare('SELECT * FROM teams WHERE name = ?').get(name);
     }
 
-    static getWithDrivers(id) {
-        const team = this.getById(id);
+    static async getWithDrivers(id) {
+        const db = await getDb();
+        const team = await this.getById(id);
         if (!team) return null;
 
         const drivers = db.prepare('SELECT * FROM drivers WHERE team_id = ?').all(id);
         return { ...team, drivers };
     }
 
-    static create(data) {
+    static async create(data) {
+        const db = await getDb();
         const stmt = db.prepare(`
             INSERT INTO teams (name, full_name, color, secondary_color, country)
             VALUES (@name, @full_name, @color, @secondary_color, @country)

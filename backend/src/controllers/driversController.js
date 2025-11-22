@@ -1,17 +1,17 @@
 import Driver from '../models/Driver.js';
 
-export const getAllDrivers = (req, res) => {
+export const getAllDrivers = async (req, res) => {
     try {
-        const drivers = Driver.getAll();
+        const drivers = await Driver.getAll();
         res.json(drivers);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-export const getDriverById = (req, res) => {
+export const getDriverById = async (req, res) => {
     try {
-        const driver = Driver.getById(req.params.id);
+        const driver = await Driver.getById(req.params.id);
         if (!driver) {
             return res.status(404).json({ error: 'Driver not found' });
         }
@@ -21,9 +21,9 @@ export const getDriverById = (req, res) => {
     }
 };
 
-export const getDriverByAbbreviation = (req, res) => {
+export const getDriverByAbbreviation = async (req, res) => {
     try {
-        const driver = Driver.getByAbbreviation(req.params.abbr);
+        const driver = await Driver.getByAbbreviation(req.params.abbr);
         if (!driver) {
             return res.status(404).json({ error: 'Driver not found' });
         }

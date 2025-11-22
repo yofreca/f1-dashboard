@@ -1,17 +1,17 @@
 import Team from '../models/Team.js';
 
-export const getAllTeams = (req, res) => {
+export const getAllTeams = async (req, res) => {
     try {
-        const teams = Team.getAll();
+        const teams = await Team.getAll();
         res.json(teams);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-export const getTeamById = (req, res) => {
+export const getTeamById = async (req, res) => {
     try {
-        const team = Team.getById(req.params.id);
+        const team = await Team.getById(req.params.id);
         if (!team) {
             return res.status(404).json({ error: 'Team not found' });
         }
@@ -21,9 +21,9 @@ export const getTeamById = (req, res) => {
     }
 };
 
-export const getTeamWithDrivers = (req, res) => {
+export const getTeamWithDrivers = async (req, res) => {
     try {
-        const team = Team.getWithDrivers(req.params.id);
+        const team = await Team.getWithDrivers(req.params.id);
         if (!team) {
             return res.status(404).json({ error: 'Team not found' });
         }

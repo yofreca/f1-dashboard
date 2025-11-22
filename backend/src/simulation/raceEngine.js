@@ -23,8 +23,8 @@ class RaceEngine extends EventEmitter {
         this.speed = 1; // multiplicador de velocidad
     }
 
-    initializeDrivers() {
-        const allDrivers = Driver.getAll();
+    async initializeDrivers() {
+        const allDrivers = await Driver.getAll();
         this.drivers = allDrivers.map((driver, index) => ({
             ...driver,
             position: index + 1,
@@ -57,9 +57,9 @@ class RaceEngine extends EventEmitter {
         return tires[Math.floor(Math.random() * tires.length)];
     }
 
-    start(trackId) {
+    async start(trackId) {
         // Obtener pista
-        const track = trackId ? Track.getById(trackId) : Track.getRandom();
+        const track = trackId ? await Track.getById(trackId) : await Track.getRandom();
         if (!track) {
             console.error('No track found');
             return;
@@ -73,12 +73,12 @@ class RaceEngine extends EventEmitter {
         this.state.elapsedTime = 0;
 
         // Crear carrera en DB
-        const race = Race.create(track.id, this.state.totalLaps);
+        const race = await Race.create(track.id, this.state.totalLaps);
         this.state.raceId = race.id;
-        Race.updateStatus(race.id, 'running');
+        await Race.updateStatus(race.id, 'running');
 
         // Inicializar pilotos
-        this.initializeDrivers();
+        await this.initializeDrivers();
 
         // Iniciar bucle de simulación
         this.startLoop();
@@ -301,7 +301,7 @@ class RaceEngine extends EventEmitter {
         }
     }
 
-    finish() {
+    async finish() {
         this.state.status = 'finished';
         this.stop();
 
@@ -312,7 +312,7 @@ class RaceEngine extends EventEmitter {
 
         // Actualizar en DB
         if (this.state.raceId) {
-            Race.updateStatus(this.state.raceId, 'finished');
+            await Race.updateStatus(this.state.raceId, 'finished');
         }
 
         this.emit('finished', {
@@ -332,18 +332,18 @@ class RaceEngine extends EventEmitter {
         console.log('Race finished!');
     }
 
-    pause() {
+    async pause() {
         this.state.status = 'paused';
         if (this.state.raceId) {
-            Race.updateStatus(this.state.raceId, 'paused');
+            await Race.updateStatus(this.state.raceId, 'paused');
         }
     }
 
-    resume() {
+    async resume() {
         if (this.state.status === 'paused') {
             this.state.status = 'running';
             if (this.state.raceId) {
-                Race.updateStatus(this.state.raceId, 'running');
+                await Race.updateStatus(this.state.raceId, 'running');
             }
         }
     }
@@ -374,11 +374,11 @@ class RaceEngine extends EventEmitter {
         this.speed = Math.max(0.5, Math.min(4, speed));
     }
 
-    setWeather(weather) {
+    async setWeather(weather) {
         if (['dry', 'wet', 'mixed'].includes(weather)) {
             this.state.weather = weather;
             if (this.state.raceId) {
-                Race.updateWeather(this.state.raceId, weather);
+                await Race.updateWeather(this.state.raceId, weather);
             }
         }
     }
